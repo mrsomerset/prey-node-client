@@ -59,3 +59,10 @@ os_utils.get_existing_user_command = function (username) {
 
   return command;
 }
+
+/**
+ * @summary  Returns the temporal directory name
+ */
+os_utils.get_test_env_directory = function () {
+  return '/tmp/test_prey';
+}

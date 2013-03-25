@@ -9,7 +9,11 @@
  */
 
 // Module Requirements
-var should = require('should');
+var should      = require('should'),
+    os_name     = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
+    os_utils    = require('./lib/test_utils_' + os_name),
+    path        = require('path'),
+    test_utils  = require('./lib/test_utils');
 
 describe('[./bin/prey] config activate', function () {
   // Suite variables
@@ -17,8 +21,27 @@ describe('[./bin/prey] config activate', function () {
   var my_log = function (msg) {
     my_std_out_messages.push(msg);
   }
+  var test_dir = os_utils.get_test_env_directory();
 
-  it('Should load `lib/conf/cli.js` on `config activate` command');
+  it('Should load `lib/conf/cli.js` on `config activate` command', function (done) {
+    test_utils.prepare_test_env_prey_executable(test_dir, prepared_env);
+
+    function prepared_env (err) {
+      if (err) throw err;
+      var command = path.resolve(test_dir, 'prey') + ' config activate';
+      test_utils.execute_command(command, executed);
+    }
+
+    function executed (err, response) {
+      if (err) throw err;
+      var expected_output = '-- ARGV:  ' + test_dir
+                          + '/../lib/conf/cli.js'
+                          + ' config activate'
+                          + '\n';
+      response.should.equal(expected_output);
+      done();
+    }
+  });
 
   it('Should not do anything if `process.env.BUNDLE_ONLY is on`', function (done) {
     // Key variable

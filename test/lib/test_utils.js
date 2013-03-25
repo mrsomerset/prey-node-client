@@ -9,9 +9,11 @@
 
 // Module requirements
 var exec_process  = require('child_process').exec,
+    fs            = require('fs'),
     spawn_process = require('child_process').spawn,
     os_name       = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
-    os_utils      = require('./test_utils_' + os_name);
+    os_utils      = require('./test_utils_' + os_name),
+    path          = require('path');
 
 // Module constructor
 var utils = module.exports = function () {};
@@ -160,7 +162,8 @@ utils.get_existing_user = function (username, callback) {
 }
 
 /**
- * @param   {String} username
+ * @param   {String}    username
+ * @param   {Callback}  callback
  *
  * @summary  Returns the expected sudo line for `username`
  */
@@ -201,5 +204,58 @@ utils.get_expected_sudo_line = function (username, callback) {
   function sendResponse (sudo_args) {
     var line = username + ' ALL = NOPASSWD: ' + sudo_args;
     return callback(null, line);
+  }
+}
+
+/**
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary  Deletes, if exists, the directory given
+ */
+os_utils.delete_directory = function (directory, callback) {
+  // "Foolproof" check :P
+  if (!directory.match('^/tmp'))
+    return callback(new Error('Forbidden directory to delete!'));
+
+  var command = os_utils.get_delete_directory_command(directory);
+  utils.execute_command(command, callback);
+}
+
+/**
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a temporary test environment where a
+ *          mock executable prey runs
+ */
+utils.prepare_test_env_prey_executable = function (directory, callback) {
+  os_utils.delete_directory(directory, deleted_dir);
+
+  function deleted_dir (err) {
+    if (err) return callback(err);
+    fs.mkdir(directory, created_dir);
+  }
+
+  function created_dir (err) {
+    if (err) return callback(err);
+    os_utils.create_mock_node_exec_file(directory, created_mock_file);
+  }
+
+  function created_mock_file (err) {
+    if (err) return callback(err);
+    // Let's copy the ./bin/prey executable into the temp directory
+    var src_file = path.resolve(__dirname, '..', '..', 'bin', 'prey');
+    var dst_file = path.resolve(directory, 'prey');
+    try {
+      var contents = fs.readFileSync(src_file);
+      fs.writeFileSync(dst_file, contents);
+      if (os_name === 'linux' || os_name === 'mac') {
+        fs.chmodSync(dst_file, '755');
+      }
+      return callback();
+    } catch (e) {
+      return callback(e);
+    }
   }
 }

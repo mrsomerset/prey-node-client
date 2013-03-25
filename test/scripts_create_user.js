@@ -12,7 +12,7 @@
 var assert      = require('assert'),
     fs          = require('fs'),
     os_name     = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
-    os_utils    = require('./lib/test_utils_' + os_name);
+    os_utils    = require('./lib/test_utils_' + os_name),
     path        = require('path'),
     should      = require('should'),
     test_utils  = require('./lib/test_utils');
