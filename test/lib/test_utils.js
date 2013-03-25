@@ -213,7 +213,7 @@ utils.get_expected_sudo_line = function (username, callback) {
  *
  * @summary  Deletes, if exists, the directory given
  */
-os_utils.delete_directory = function (directory, callback) {
+utils.delete_directory = function (directory, callback) {
   // "Foolproof" check :P
     if ((os_name === 'linux' || os_name === 'mac') && !directory.match('^/tmp'))
     return callback(new Error('Forbidden directory to delete!'));
@@ -242,7 +242,7 @@ os_utils.delete_directory = function (directory, callback) {
  *          mock executable prey runs
  */
 utils.prepare_test_env_prey_executable = function (directory, callback) {
-  os_utils.delete_directory(directory, deleted_dir);
+  utils.delete_directory(directory, deleted_dir);
 
   function deleted_dir (err) {
     if (err) return callback(err);

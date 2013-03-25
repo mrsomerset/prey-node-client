@@ -77,4 +77,14 @@ describe('[./bin/prey] config activate', function () {
   it('Should setup version and interval on `controller#activate` call`');
   it('Should `install` a new version, and update the system');
   it('Should go to `controller#show_gui_and_exit` when -g flag is called');
+
+  after(function (done) {
+    // Cleanup, Just in case
+    test_utils.delete_directory(test_dir, deleted);
+
+    function deleted (err) {
+      if (err) throw err;
+      done();
+    }
+  })
 });
