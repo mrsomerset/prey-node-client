@@ -34,10 +34,19 @@ describe('[./bin/prey] config activate', function () {
 
     function executed (err, response) {
       if (err) throw err;
-      var expected_output = '-- ARGV:  ' + test_dir
-                          + '/../lib/conf/cli.js'
-                          + ' config activate'
-                          + '\n';
+      var expected_output;
+      if (os_name.match(/win/)) {
+        expected_output = '-- ARGV:  "' + test_dir
+                        + '\\\\..\\\\lib\\conf\\cli.js"'
+                        + ' config activate'
+                        + '\r\n';
+      } else {
+        expected_output = '-- ARGV:  ' + test_dir
+                        + '/../lib/conf/cli.js'
+                        + ' config activate'
+                        + '\n';
+      }
+      // The actual test
       response.should.equal(expected_output);
       done();
     }

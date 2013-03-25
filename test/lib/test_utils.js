@@ -215,11 +215,23 @@ utils.get_expected_sudo_line = function (username, callback) {
  */
 os_utils.delete_directory = function (directory, callback) {
   // "Foolproof" check :P
-  if (!directory.match('^/tmp'))
+    if ((os_name === 'linux' || os_name === 'mac') && !directory.match('^/tmp'))
+    return callback(new Error('Forbidden directory to delete!'));
+  if (  os_name.match(/^win/)
+     && !directory.match(new RegExp('^' + process.env.TMP.replace(/\\/g,'\\\\'))))
     return callback(new Error('Forbidden directory to delete!'));
 
   var command = os_utils.get_delete_directory_command(directory);
-  utils.execute_command(command, callback);
+  utils.execute_command(command, executed);
+
+  function executed (err) {
+    if (err) {
+      if (  os_name.match(/^win/)
+         && !err.message.match(/The system cannot find the file specified/))
+        return callback(err);
+    }
+    return callback();
+  }
 }
 
 /**
@@ -245,10 +257,13 @@ utils.prepare_test_env_prey_executable = function (directory, callback) {
   function created_mock_file (err) {
     if (err) return callback(err);
     // Let's copy the ./bin/prey executable into the temp directory
-    var src_file = path.resolve(__dirname, '..', '..', 'bin', 'prey');
-    var dst_file = path.resolve(directory, 'prey');
+    var file_name = (os_name.match(/^win/))? 'prey.cmd' : 'prey'
+    var src_file = path.resolve(__dirname, '..', '..', 'bin', file_name);
+    var dst_file = path.resolve(directory, file_name);
     try {
-      var contents = fs.readFileSync(src_file);
+      var contents = fs.readFileSync(src_file, 'utf8');
+      // A small fix (so we don't have to compile an .exe)
+      if (os_name.match(/^win/)) contents = contents.replace(/node.exe/g, 'node.bat');
       fs.writeFileSync(dst_file, contents);
       if (os_name === 'linux' || os_name === 'mac') {
         fs.chmodSync(dst_file, '755');
