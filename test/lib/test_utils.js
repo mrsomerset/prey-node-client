@@ -274,3 +274,78 @@ utils.prepare_test_env_prey_executable = function (directory, callback) {
     }
   }
 }
+
+/**
+ * @param   {String}    username
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a temporary test environment to test `config activate`
+ */
+utils.prepare_test_config_activate_env = function (username, directory, callback) {
+  os_utils.create_user(username, utils.execute_command, created_user);
+
+  function created_user (err) {
+    if (err) return callback(err);
+    // Execute `.sh` file
+    var opts = {
+      username        : username,
+      directory       : directory,
+      execute_command : utils.execute_command
+    }
+    os_utils.install_files_for_test_config_activate(opts, callback);
+  }
+}
+
+/**
+ * @param   {String}    username
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary Invoke the test for `config activate`.
+ *          Impersonates in LINUX / OSX System
+ */
+utils.invoke_config_activate_executable = function (username, directory, callback) {
+  if (os_name === 'mac') {
+    return os_utils.invoke_config_activate( username,
+                                            directory,
+                                            utils.execute_command,
+                                            utils.spawn_command,
+                                            callback);
+  } else {
+    return callback(new Error('Platform not yet supported'));
+  }
+}
+
+/**
+ * @param   {String}    directory
+ *
+ * @summary Gets in a synchronic way the contents of a file
+ */
+utils.get_config_file_contents_sync = function (path) {
+  try {
+    var contents = fs.readFileSync(path, 'utf8');
+    return contents;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * @param   {String}    username
+ * @param   {Callback}  callback
+ *
+ * @summary Get interval information
+ */
+utils.get_interval_data = function (username, directory, callback) {
+  if (os_name === 'mac') {
+    utils.get_test_user_id(username, function (err, id) {
+      if (err) return callback(err);
+      utils.spawn_command('crontab', ['-l'],
+                          { cwd : directory , uid : id },
+                          callback);
+    });
+  } else {
+    return callback(new Error('Platform not yet supported'));
+  }
+}

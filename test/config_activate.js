@@ -9,7 +9,8 @@
  */
 
 // Module Requirements
-var should      = require('should'),
+var assert      = require('assert'),
+    should      = require('should'),
     os_name     = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
     os_utils    = require('./lib/test_utils_' + os_name),
     path        = require('path'),
@@ -18,10 +19,11 @@ var should      = require('should'),
 describe('[./bin/prey] config activate', function () {
   // Suite variables
   var my_std_out_messages = new Array();
-  var my_log = function (msg) {
+  var my_log    = function (msg) {
     my_std_out_messages.push(msg);
   }
-  var test_dir = os_utils.get_test_env_directory();
+  var test_dir  = os_utils.get_test_env_directory();
+  var test_user = 'test___prey';
 
   it('Should load `lib/conf/cli.js` on `config activate` command', function (done) {
     test_utils.prepare_test_env_prey_executable(test_dir, prepared_env);
@@ -74,15 +76,51 @@ describe('[./bin/prey] config activate', function () {
     }
   });
 
-  it('Should setup version and interval on `controller#activate` call`');
+  it('Should setup version and interval on `controller#activate` call`', function (done) {
+    this.timeout(10000);
+    test_utils.prepare_test_config_activate_env(test_user, test_dir, prepared_env);
+
+    function prepared_env (err) {
+      if (err) throw err;
+      test_utils.invoke_config_activate_executable(test_user, test_dir, executed_file);
+    }
+
+    function executed_file (err, log_data) {
+      if (err) throw err;
+      // Test the configuration file
+      var config_file_path     = path.resolve(test_dir, 'test_conf', 'prey.conf');
+      var config_file_contents = test_utils.get_config_file_contents_sync(config_file_path);
+      assert(config_file_contents || config_file_contents.length !== 0,'`prey.conf` file is empty!');
+      assert(config_file_contents.match(/\n# Prey configuration file/),'Bad configuration file');
+      // Test the interval
+      test_utils.get_interval_data(test_user, test_dir, got_interval);
+    }
+
+    function got_interval (err, data) {
+      if (err) throw err;
+      if (os_name === 'mac' || os_name === 'linux') {
+        data.substr(0,2).should.be.within(1,59);
+        data.should.match(new RegExp(path.resolve(test_dir, 'bin', 'prey')));
+      }
+      // No errors? OK
+      done();
+    }
+  });
+
   it('Should `install` a new version, and update the system');
   it('Should go to `controller#show_gui_and_exit` when -g flag is called');
 
   after(function (done) {
     // Cleanup, Just in case
-    test_utils.delete_directory(test_dir, deleted);
+    test_utils.delete_directory(test_dir, deleted_directory);
 
-    function deleted (err) {
+    function deleted_directory (err) {
+      if (err) throw err;
+      // Are we deleting the symlink?
+      test_utils.delete_user(test_user, deleted_user);
+    }
+
+    function deleted_user (err) {
       if (err) throw err;
       done();
     }
