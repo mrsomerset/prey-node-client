@@ -40,10 +40,7 @@ var common    = sandbox.require('./lib/common', {
 });
 
 // We want to know if the original values of `common.system.paths.config` are OK
-if (os_name === 'mac' || os_name === 'linux')
-  assert(common.system.paths.config === '/etc/prey', 'Config Path should be `/etc/prey`');
-if (os_name.match(/win/))
-  assert(common.system.paths.config.match(/Prey/), 'Config Path should contain `Prey`');
+assert(common.system.paths.config === '/etc/prey', 'Config Path should be `/etc/prey`');
 
 // If we are OK, let's change the path for a custom one
 common.system.paths.config = path.resolve(__dirname, 'test_conf');

@@ -78,7 +78,12 @@ describe('[./bin/prey] config activate', function () {
 
   it('Should setup version and interval on `controller#activate` call`', function (done) {
     this.timeout(10000);
-    test_utils.prepare_test_config_activate_env(test_user, test_dir, prepared_env);
+    if (os_name === 'mac' || os_name === 'linux') {
+      test_utils.prepare_test_config_activate_env(test_user, test_dir, prepared_env);
+    } else {
+      // Windows system don't need environment preparation
+      prepared_env();
+    }
 
     function prepared_env (err) {
       if (err) throw err;
@@ -90,7 +95,7 @@ describe('[./bin/prey] config activate', function () {
       // Test the configuration file
       var config_file_path     = path.resolve(test_dir, 'test_conf', 'prey.conf');
       var config_file_contents = test_utils.get_config_file_contents_sync(config_file_path);
-      assert(config_file_contents || config_file_contents.length !== 0,'`prey.conf` file is empty!');
+      assert(config_file_contents && config_file_contents.length !== 0,'`prey.conf` file is empty!');
       assert(config_file_contents.match(/\n# Prey configuration file/),'Bad configuration file');
       // Test the interval
       test_utils.get_interval_data(test_user, test_dir, got_interval);
@@ -101,6 +106,9 @@ describe('[./bin/prey] config activate', function () {
       if (os_name === 'mac' || os_name === 'linux') {
         data.substr(0,2).should.be.within(1,59);
         data.should.match(new RegExp(path.resolve(test_dir, 'bin', 'prey')));
+      } else {
+        data.should.have.property('value');
+        data.should.have.property('one_hour');
       }
       // No errors? OK
       done();
@@ -117,7 +125,11 @@ describe('[./bin/prey] config activate', function () {
     function deleted_directory (err) {
       if (err) throw err;
       // Are we deleting the symlink?
-      test_utils.delete_user(test_user, deleted_user);
+      if (os_name === 'mac' || os_name === 'linux') {
+        test_utils.delete_user(test_user, deleted_user);
+      } else {
+        done();
+      }
     }
 
     function deleted_user (err) {

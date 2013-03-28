@@ -312,7 +312,14 @@ utils.invoke_config_activate_executable = function (username, directory, callbac
                                             utils.execute_command,
                                             utils.spawn_command,
                                             callback);
-  } else {
+  } else if (os_name.match(/^win/)) {
+    var objVars = {
+      directory : directory,
+      values    : {}
+    }
+    return os_utils.invoke_config_activate(objVars, callback);
+  }
+  else {
     return callback(new Error('Platform not yet supported'));
   }
 }
@@ -345,7 +352,20 @@ utils.get_interval_data = function (username, directory, callback) {
                           { cwd : directory , uid : id },
                           callback);
     });
+  } else if (os_name.match(/win/)){
+    var delay =
+      require(
+        path.resolve(__dirname, '..', '..', 'lib', 'system', 'windows', 'delay')
+      );
+    // Our hack to set/get the right key...
+    process.flag_test_prey_on = true;
+    delay.get(function (obj) {
+      if (arguments.length === 0) return callback(new Error('Empty response from delay#get'));
+      // ...
+      delete process.flag_test_prey_on;
+      return callback(null, obj);
+    });
   } else {
-    return callback(new Error('Platform not yet supported'));
+    return callback(new Error('Platform not supported'));
   }
 }
