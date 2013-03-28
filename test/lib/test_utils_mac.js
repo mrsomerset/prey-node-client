@@ -110,7 +110,7 @@ os_utils.create_mock_node_exec_file = function (directory, callback) {
  *
  * @summary Creates a user
  */
-os_utils.create_user= function (username, execute_command, callback) {
+os_utils.create_user = function (username, execute_command, callback) {
   // Check whether this username exists
   var command = 'dscl . -read /Users/' + username
     , id;

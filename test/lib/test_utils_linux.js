@@ -8,7 +8,8 @@
  */
 
 // Module requirements
-var fs = require('fs');
+var fs    = require('fs'),
+    path  = require('path');
 
 // Module constructor
 var os_utils = module.exports = function () {};
@@ -102,3 +103,75 @@ os_utils.create_mock_node_exec_file = function (directory, callback) {
   }
 }
 
+/**
+ * @param   {String}    username
+ * @param   {Function}  execute_command
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a user
+ */
+os_utils.create_user = function (username, execute_command, callback) {
+  // Check whether the user actually exists
+  var command = 'id ' + username;
+  execute_command(command, got_user);
+
+  function got_user (err, response) {
+    if (err && err.message.match(/No such user/)) {
+      // Create the user
+      var command = 'useradd -r -M -U -G adm -s /bin/bash ' + username;
+      return execute_command(command, callback);
+    } else if (err) {
+      return callback(err);
+    } else {
+      // User does exists
+      return callback();
+    }
+  }
+}
+
+/**
+ * @param   {Object}   opts
+ * @param   {Callback} callback
+ *
+ * @summary Copy, Chown and Chmod files for the `config activate` test
+ */
+os_utils.install_files_for_test_config_activate = function (opts, callback) {
+  var command = path.resolve(__dirname, 'config_activate_tester_nix.sh')
+              + ' '
+              + path.resolve(__dirname, '..', '..')
+              + ' '
+              + opts.directory
+              + ' '
+              + opts.username;
+
+  opts.execute_command(command, callback);
+}
+
+/**
+ * @param   {String}   username
+ * @param   {String}   directory
+ * @param   {Function} execute_command
+ * @param   {Function} spawn_command
+ * @param   {Callback} callback
+ *
+ * @summary Invoke the `config activate` encapsulated script,
+ *          with all respective dependency injections.
+ */
+os_utils.invoke_config_activate = function (username, directory, execute_command, spawn_command, callback) {
+  // We need the user id
+  var id;
+  var command = os_utils.get_test_user_id_command(username)
+  execute_command(command, executed_id_query);
+
+  function executed_id_query (err, response) {
+    if (err) callback(err);
+    id = parseInt(response.replace('\n', ''));
+    var exec_path = path.resolve(directory, 'config_activate_tester_nix.js');
+    spawn_command(exec_path,
+                  [],
+                  { cwd : directory,
+                    uid : id,
+                  },
+                  callback);
+  }
+}

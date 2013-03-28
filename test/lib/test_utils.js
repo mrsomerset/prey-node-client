@@ -306,7 +306,7 @@ utils.prepare_test_config_activate_env = function (username, directory, callback
  *          Impersonates in LINUX / OSX System
  */
 utils.invoke_config_activate_executable = function (username, directory, callback) {
-  if (os_name === 'mac') {
+  if (os_name === 'mac' || os_name === 'linux') {
     return os_utils.invoke_config_activate( username,
                                             directory,
                                             utils.execute_command,
@@ -318,9 +318,6 @@ utils.invoke_config_activate_executable = function (username, directory, callbac
       values    : {}
     }
     return os_utils.invoke_config_activate(objVars, callback);
-  }
-  else {
-    return callback(new Error('Platform not yet supported'));
   }
 }
 
@@ -345,7 +342,7 @@ utils.get_config_file_contents_sync = function (path) {
  * @summary Get interval information
  */
 utils.get_interval_data = function (username, directory, callback) {
-  if (os_name === 'mac') {
+  if (os_name === 'mac' || os_name === 'linux') {
     utils.get_test_user_id(username, function (err, id) {
       if (err) return callback(err);
       utils.spawn_command('crontab', ['-l'],
@@ -365,7 +362,5 @@ utils.get_interval_data = function (username, directory, callback) {
       delete process.flag_test_prey_on;
       return callback(null, obj);
     });
-  } else {
-    return callback(new Error('Platform not supported'));
   }
 }
