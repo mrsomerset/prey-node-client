@@ -293,7 +293,59 @@ utils.prepare_test_config_activate_env = function (username, directory, callback
       directory       : directory,
       execute_command : utils.execute_command
     }
-    os_utils.install_files_for_test_config_activate(opts, callback);
+    os_utils.install_files_for_impersonating_tests(opts, callback);
+  }
+}
+
+/**
+ * @param   {String}    username
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a temporary test environment to test
+ *          the installing of a new version
+ */
+utils.prepare_test_install_new_version_env = function (username, directory, callback) {
+  // We will need the version number, and then increase it by 0.0.1
+  var package_json      = require(path.resolve(__dirname, '..', '..', 'package.json'));
+  var current_version   = package_json.version.split('.');
+  current_version[2]    = parseInt(current_version[2]) + 1;
+  var new_version       = current_version.join('.');
+  var new_version_path  = path.resolve(directory, 'versions', new_version);
+
+  if (os_name === 'mac' || os_name === 'linux') {
+    os_utils.create_user(username, utils.execute_command, created_user);
+  } else {
+    // Windows doesn't need to create a user
+    created_user();
+  }
+
+  function created_user (err) {
+    if (err) return callback(err);
+    if (os_name === 'mac' || os_name === 'linux') {
+      // Execute `.sh` file
+      var opts = {
+        username        : username,
+        directory       : new_version_path,
+        execute_command : utils.execute_command,
+        test            : 'new_version'
+      }
+      os_utils.install_files_for_impersonating_tests(opts, installed_files);
+    }
+  }
+
+  function installed_files (err) {
+    if (err) return callback(err);
+    // We need to change the version of the package.json
+    // for the test to have sense
+    package_json.version = new_version;
+    var package_json_path = path.resolve(new_version_path, 'package.json');
+    fs.writeFile(package_json_path, JSON.stringify(package_json, null, 4), wrote_file);
+  }
+
+  function wrote_file (err) {
+    if (err) return callback(err);
+    return callback(null, new_version_path);
   }
 }
 
@@ -368,4 +420,15 @@ utils.get_interval_data = function (username, directory, callback) {
   } else {
     return callback(new Error('Platform not supported'));
   }
+}
+
+/**
+ * @param   {String}    directory
+ * @param   {Callback}  callback
+ *
+ * @summary Executes a command to test the existence of a symlink
+ */
+utils.check_symlink = function (directory, callback) {
+  var command = os_utils.get_check_symlink_command (directory);
+  utils.execute_command(command, callback);
 }

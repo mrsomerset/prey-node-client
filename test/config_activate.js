@@ -81,7 +81,7 @@ describe('[./bin/prey] config activate', function () {
     if (os_name === 'mac' || os_name === 'linux') {
       test_utils.prepare_test_config_activate_env(test_user, test_dir, prepared_env);
     } else {
-      // Windows system don't need environment preparation
+      // Windows systems don't need environment preparation
       prepared_env();
     }
 
@@ -110,12 +110,36 @@ describe('[./bin/prey] config activate', function () {
         data.should.have.property('value');
         data.should.have.property('one_hour');
       }
-      // No errors? OK
       done();
     }
   });
 
-  it('Should `install` a new version, and update the system');
+  it('Should `install` a new version, and update the system', function (done) {
+    this.timeout(10000);
+    var new_version_path;
+    test_utils.prepare_test_install_new_version_env(test_user, test_dir, prepared_env);
+
+    function prepared_env (err, _new_version_path) {
+      if (err) throw err;
+      new_version_path = _new_version_path;
+      test_utils.invoke_config_activate_executable(test_user, new_version_path, executed_file);
+    }
+
+    function executed_file (err, log_data) {
+      if (err) throw err;
+      test_utils.check_symlink(test_dir, checked_symlink);
+    }
+
+    function checked_symlink (err, data) {
+      if (err) throw err;
+      // Test the data
+      var values = data.split(' ');
+      values[values.length - 3].should.be.equal(path.resolve(test_dir, 'current'));
+      values[values.length - 1].should.be.equal(new_version_path + '\n');
+      done();
+    }
+  });
+
   it('Should go to `controller#show_gui_and_exit` when -g flag is called');
 
   after(function (done) {
@@ -133,6 +157,9 @@ describe('[./bin/prey] config activate', function () {
     }
 
     function deleted_user (err) {
+
+      // TODO: If we are in windows, delete the registry key
+
       if (err) throw err;
       done();
     }

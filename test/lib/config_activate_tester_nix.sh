@@ -13,8 +13,10 @@
 SRCPATH="$1"
 DSTPATH="$2"
 USERNAME="$3"
+TEST="$4"
 
-mkdir "${DSTPATH}/node_modules"
+rm -rf "${DSTPATH}"
+mkdir -p "${DSTPATH}/node_modules"
 cp -r "${SRCPATH}/node_modules/async" "${DSTPATH}/node_modules/."
 cp -r "${SRCPATH}/node_modules/commander" "${DSTPATH}/node_modules/."
 cp -r "${SRCPATH}/node_modules/dialog" "${DSTPATH}/node_modules/."
@@ -31,4 +33,10 @@ cp "${SRCPATH}/package.json" "${DSTPATH}/."
 
 cp "${SRCPATH}/test/lib/config_activate_tester_nix.js" "${DSTPATH}/."
 
-chown -R "${USERNAME}": "${DSTPATH}"
+
+
+if [ "${TEST}" == "new_version" ]; then
+  chown -R "${USERNAME}": "${DSTPATH}/../.."
+else
+  chown -R "${USERNAME}": "${DSTPATH}"
+fi

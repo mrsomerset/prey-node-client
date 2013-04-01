@@ -160,7 +160,7 @@ os_utils.create_user= function (username, execute_command, callback) {
  *
  * @summary Copy, Chown and Chmod files for the `config activate` test
  */
-os_utils.install_files_for_test_config_activate = function (opts, callback) {
+os_utils.install_files_for_impersonating_tests = function (opts, callback) {
   var command = path.resolve(__dirname, 'config_activate_tester_nix.sh')
               + ' '
               + path.resolve(__dirname, '..', '..')
@@ -168,6 +168,8 @@ os_utils.install_files_for_test_config_activate = function (opts, callback) {
               + opts.directory
               + ' '
               + opts.username;
+
+  if (opts.test === 'new_version') command += ' new_version';
 
   opts.execute_command(command, callback);
 }
@@ -200,4 +202,14 @@ os_utils.invoke_config_activate = function (username, directory, execute_command
                   },
                   callback);
   }
+}
+
+/**
+ * @param   {String} directory
+ *
+ * @summary  Returns command to grep the `username`
+ *           from an output of the user list
+ */
+os_utils.get_check_symlink_command = function (directory) {
+  return "ls -al " + path.resolve(directory, 'current');
 }
