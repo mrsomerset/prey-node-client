@@ -322,16 +322,14 @@ utils.prepare_test_install_new_version_env = function (username, directory, call
 
   function created_user (err) {
     if (err) return callback(err);
-    if (os_name === 'mac' || os_name === 'linux') {
-      // Execute `.sh` file
-      var opts = {
-        username        : username,
-        directory       : new_version_path,
-        execute_command : utils.execute_command,
-        test            : 'new_version'
-      }
-      os_utils.install_files_for_impersonating_tests(opts, installed_files);
+    // Execute `.sh` file
+    var opts = {
+      username        : username,
+      directory       : new_version_path,
+      execute_command : utils.execute_command,
+      test            : 'new_version'
     }
+    return os_utils.install_files_for_impersonating_tests(opts, installed_files);
   }
 
   function installed_files (err) {
@@ -371,6 +369,25 @@ utils.invoke_config_activate_executable = function (username, directory, callbac
     }
     return os_utils.invoke_config_activate(objVars, callback);
   }
+}
+
+/**
+ * @param   {String}   directory
+ * @param   {Callback} callback
+ *
+ * @summary For Windows OS.
+ *          Invoke `config activate` function of [./bin/prey]
+ *          by calling directly the function cli_controller#activate.
+ *          Some dependency injections are needed.
+ *          This test differs from function
+ *          os_utils#invoke_config_activate
+ */
+utils.invoke_install_new_version = function (directory, callback) {
+  var opts = {
+    directory       : directory,
+    execute_command : utils.execute_command
+  }
+  return os_utils.invoke_install_new_version(opts, callback);
 }
 
 /**

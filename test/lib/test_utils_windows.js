@@ -54,6 +54,21 @@ os_utils.create_mock_node_exec_file = function (directory, callback) {
 }
 
 /**
+ * @param   {Object}   opts
+ * @param   {Callback} callback
+ *
+ * @summary Copy, Chown and Chmod files for the `config activate` test
+ */
+os_utils.install_files_for_impersonating_tests = function (opts, callback) {
+  var command = path.resolve(__dirname, 'config_activate_tester_win.cmd')
+              + ' '
+              + path.resolve(__dirname, '..', '..')
+              + ' '
+              + opts.directory;
+  opts.execute_command(command, callback);
+}
+
+/**
  * @param   {Object}   objVars
  * @param   {Callback} callback
  *
@@ -142,4 +157,48 @@ os_utils.invoke_config_activate = function (objVars, callback) {
 
   // Issue the command
   cli_controller.activate(objVars.values);
+}
+
+/**
+ * @param {Object}    opts
+ * @param {Callback}  callback
+ *
+ * @summary Invoke `config activate` function of [./bin/prey]
+ *          by calling directly the function cli_controller#activate.
+ *          Some dependency injections are needed.
+ *          This test differs from function
+ *          os_utils#invoke_config_activate
+ */
+os_utils.invoke_install_new_version = function (opts, callback) {
+  var command = 'node '
+              + path.resolve(opts.directory, 'config_activate_tester_win.js');
+  return opts.execute_command(command, callback);
+}
+
+/**
+ * @param   {String} directory
+ *
+ * @summary Returns command to grep the `username`
+ *          from an output of the user list
+ */
+os_utils.get_check_symlink_command = function (directory) {
+  return "dir " + path.resolve(directory, 'current');
+}
+
+/**
+ * @param   {String}    key
+ * @param   {Callback}  callback
+ *
+ * @summary Deletes the key from the registry
+ */
+os_utils.delete_registry_key = function (callback) {
+  process.flag_test_prey_on = true;
+  var delay =
+    require(path.resolve(__dirname, '..','..', 'lib', 'system', 'windows', 'delay'));
+  delay.unset(done_operation);
+  function done_operation (err) {
+    if (err) return callback(err);
+    delete process.flag_test_prey_on;
+    return callback();
+  }
 }

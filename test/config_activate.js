@@ -122,25 +122,39 @@ describe('[./bin/prey] config activate', function () {
     function prepared_env (err, _new_version_path) {
       if (err) throw err;
       new_version_path = _new_version_path;
-      test_utils.invoke_config_activate_executable(test_user, new_version_path, executed_file);
+      if (os_name === 'mac' || os_name === 'linux') {
+        test_utils.invoke_config_activate_executable(test_user, new_version_path, executed_file);
+      } else { // windows...
+        test_utils.invoke_install_new_version(new_version_path, executed_file);
+      }
     }
 
     function executed_file (err, log_data) {
-      if (err) throw err;
-      test_utils.check_symlink(test_dir, checked_symlink);
+      if (err) {
+        if (   !err.match(/Cannot find module/)
+            || !err.match(/package.json/)) throw err;
+      }
+      return test_utils.check_symlink(test_dir, checked_symlink);
     }
 
     function checked_symlink (err, data) {
       if (err) throw err;
       // Test the data
-      var values = data.split(' ');
-      values[values.length - 3].should.be.equal(path.resolve(test_dir, 'current'));
-      values[values.length - 1].should.be.equal(new_version_path + '\n');
+      if (os_name === 'mac' || os_name === 'linux') {
+        var values = data.split(' ');
+        values[values.length - 3].should.be.equal(path.resolve(test_dir, 'current'));
+        values[values.length - 1].should.be.equal(new_version_path + '\n');
+      } else { // windows...
+        data.should.match(/prey.conf.default/);
+        data.should.match(/node_modules/)
+        data.should.match(/config_activate_tester_win.js/)
+      }
+
       done();
     }
   });
 
-  it('Should go to `controller#show_gui_and_exit` when -g flag is called');
+  //it('Should go to `controller#show_gui_and_exit` when -g flag is called');
 
   after(function (done) {
     // Cleanup, Just in case
@@ -152,14 +166,20 @@ describe('[./bin/prey] config activate', function () {
       if (os_name === 'mac' || os_name === 'linux') {
         test_utils.delete_user(test_user, deleted_user);
       } else {
-        done();
+        deleted_user();
       }
     }
 
     function deleted_user (err) {
-
       // TODO: If we are in windows, delete the registry key
+      if (os_name.match(/win/)) {
+        os_utils.delete_registry_key(done_cleanup);
+      } else {
+        done_cleanup();
+      }
+    }
 
+    function done_cleanup (err) {
       if (err) throw err;
       done();
     }
