@@ -36,7 +36,6 @@ describe.skip('scripts/create_user.js', function () {
   });
 
   describe('#create_user()', function (done) {
-
     it('Should exit when no username is given', function (done) {
       test_utils.execute_command(create_user_path, executed);
 
