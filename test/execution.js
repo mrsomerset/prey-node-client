@@ -34,7 +34,9 @@ describe('Execution of [./bin/prey]', function () {
       var expected_output;
       if (os_name.match(/^win/)) {
         // TODO: Correct this
-        expected_output = '-- ARGV:  /tmp/test_prey/../lib/agent/cli.js\r\n';
+        expected_output = '-- ARGV:  "' + test_dir
+                        + '\\\\..\\\\lib\\agent\\cli.js"'
+                        + '\r\n';
       } else {
         // TODO: Correct this
         expected_output = '-- ARGV:  /tmp/test_prey/../lib/agent/cli.js\n';
