@@ -13,7 +13,8 @@ var exec_process  = require('child_process').exec,
     spawn_process = require('child_process').spawn,
     os_name       = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
     os_utils      = require('./test_utils_' + os_name),
-    path          = require('path');
+    path          = require('path'),
+    sandbox       = require('sandboxed-module');
 
 // Module constructor
 var utils = module.exports = function () {};
@@ -443,4 +444,58 @@ utils.get_interval_data = function (username, directory, callback) {
 utils.check_symlink = function (directory, callback) {
   var command = os_utils.get_check_symlink_command (directory);
   utils.execute_command(command, callback);
+}
+
+/**
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a temporary test environment to test
+ *          what happens when there is no config file
+ */
+utils.prepare_test_execution_no_config_file_env = function (callback) {
+  // The purpose here is to fake a bad location for the config file
+  // HJ: This is a party of dependency injection !!!
+  // TODO: Really, we will need to decouple this baby.
+  var my_stdout     = [];
+  var my_process    = {};
+  my_process.argv   = process.argv;
+  my_process.env    = process.env;
+  my_process.on     = process.on;
+  my_process.exit   = function (code) { my_stdout.push('-- EXIT with code ' + code);}
+  var logger        = {};
+  logger.write      = function (msg) { my_stdout.push('-- STDOUT: ' + msg);}
+  logger.info       = logger.write;
+  var logger_fact   = {}
+  logger_fact.init  = function () { return logger;}
+  var program       = require('commander');
+  var random_string = require('crypto').createHash('md5')
+                        .update(Math.random().toString()).digest('hex');
+  program.path      = path.resolve('/', 'tmp', random_string);
+  var common_prime  = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'common'), {
+    requires : {
+      'commander' : program
+    }
+  });
+  var common        = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent','common'), {
+    requires : {
+      './../common' : common_prime,
+      './logger'    : logger_fact
+    }
+  });
+  var agent          = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'index'), {
+    requires : {
+      './common' : common
+    }
+  });
+  var cli            = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'cli_controller'), {
+    requires : {
+      './common' : common,
+      './'       : agent
+    },
+    globals : {
+      process : my_process
+    }
+  });
+  // END, return the stdout (let's keep the 1st param in a callback an error)
+  callback(null, my_stdout);
 }
