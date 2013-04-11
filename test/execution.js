@@ -54,7 +54,17 @@ describe('Execution of [./bin/prey]', function () {
     }
   });
 
-  it('C');
+  it('Should exit if there is not an API key in the config file', function (done) {
+    test_utils.prepare_test_execution_no_api_key(prepared_env);
+
+    function prepared_env (err, response) {
+      // TODO: The actual tests
+      // PLACEHOLDER
+      done();
+      // PLACEHOLDER-END
+    }
+  });
+
   it('D');
   it('E');
   it('F');
