@@ -49,15 +49,8 @@ describe('Execution of [./bin/prey]', function () {
     test_utils.prepare_test_execution_no_config_file_env(prepared_env);
 
     function prepared_env (err, response) {
-      var expected_output = [];
-      if (os_name === 'mac' || os_name === 'linux') {
-        expected_output = [ '-- STDOUT: \nNo config file found. Please run bin/prey config.\n',
-                            '-- EXIT with code 1' ]
-      } else {
-        expected_output = ['PLACEHOLDER', 'PLACEHOLDER'];
-      }
-      response[0].should.be.equal(expected_output[0]);
-      response[1].should.be.equal(expected_output[1]);
+      response[0].should.be.match(/No config file found. Please run bin\/prey config/);
+      response[1].should.be.equal('-- EXIT with code 1');
       done();
     }
   });
