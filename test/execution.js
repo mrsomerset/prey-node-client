@@ -39,7 +39,6 @@ describe('Execution of [./bin/prey]', function () {
       } else {
         expected_output = '-- ARGV:  ' + test_dir + '/../lib/agent/cli.js\n';
       }
-      // The actual test
       response.should.equal(expected_output);
       done();
     }
