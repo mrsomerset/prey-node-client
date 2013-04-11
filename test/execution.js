@@ -33,13 +33,11 @@ describe('Execution of [./bin/prey]', function () {
       if (err) throw err;
       var expected_output;
       if (os_name.match(/^win/)) {
-        // TODO: Correct this
         expected_output = '-- ARGV:  "' + test_dir
                         + '\\\\..\\\\lib\\agent\\cli.js"'
                         + '\r\n';
       } else {
-        // TODO: Correct this
-        expected_output = '-- ARGV:  /tmp/test_prey/../lib/agent/cli.js\n';
+        expected_output = '-- ARGV:  ' + test_dir + '/../lib/agent/cli.js\n';
       }
       // The actual test
       response.should.equal(expected_output);
@@ -47,13 +45,28 @@ describe('Execution of [./bin/prey]', function () {
     }
   });
 
-  it('B');
+  it('Should exit when there is not a config file', function (done) {
+    test_utils.prepare_test_execution_no_config_file_env(prepared_env);
+
+    function prepared_env (err, response) {
+      var expected_output = [];
+      if (os_name === 'mac' || os_name === 'linux') {
+        expected_output = [ '-- STDOUT: \nNo config file found. Please run bin/prey config.\n',
+                            '-- EXIT with code 1' ]
+      } else {
+        expected_output = ['PLACEHOLDER', 'PLACEHOLDER'];
+      }
+      response[0].should.be.equal(expected_output[0]);
+      response[1].should.be.equal(expected_output[1]);
+      done();
+    }
+  });
+
   it('C');
   it('D');
   it('E');
   it('F');
   it('G');
-  it('H');
 
   after(function (done) {
     test_utils.delete_directory(test_dir, deleted_directory);
