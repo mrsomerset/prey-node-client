@@ -68,7 +68,14 @@ describe('Execution of [./bin/prey]', function () {
     }
   });
 
-  it('D');
+  it('Should exit if there is not internet connection', function (done) {
+    test_utils.prepare_test_no_internet_connection(prepared_env_executed);
+
+    function prepared_env_executed (err, response) {
+      done();
+    }
+  });
+
   it('E');
   it('F');
   it('G');
