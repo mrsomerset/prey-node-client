@@ -61,7 +61,8 @@ describe('Execution of [./bin/prey]', function () {
       if (err) throw err;
       var expected_output = [];
       if (os_name.match(/^win/)) {
-        // TODO
+        expected_output.push('-- STDOUT: Device key not present.');
+        expected_output.push('Error: No API key found. Please set up your account.');
       } else {
         expected_output.push('-- STDOUT: Device key not present.');
         expected_output.push('Error: No API key found. Please set up your account.');
