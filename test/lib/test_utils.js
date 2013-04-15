@@ -8,7 +8,8 @@
  */
 
 // Module requirements
-var exec_process  = require('child_process').exec,
+var assert        = require('assert'),
+    exec_process  = require('child_process').exec,
     fs            = require('fs'),
     spawn_process = require('child_process').spawn,
     os_name       = process.platform.replace('darwin', 'mac').replace('win32', 'windows'),
@@ -487,6 +488,8 @@ utils.prepare_test_execution_no_config_file_env = function (callback) {
       './common' : common
     }
   });
+  // Some handy hack...
+  my_process.flag_test_execution_no_config_file_env = true;
   var cli            = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'cli_controller'), {
     requires : {
       './common' : common,
@@ -498,4 +501,114 @@ utils.prepare_test_execution_no_config_file_env = function (callback) {
   });
   // END, return the stdout (let's keep the 1st param in a callback an error)
   callback(null, my_stdout);
+}
+
+/**
+ * @param   {String}    directory
+ * @param   {String}    driver
+ * @param   {Callback}  callback
+ *
+ * @summary Creates a temporary test environment to test
+ *          what happens when there is no api key in the config file.
+ *          Aditionally, it will check if the default file has
+ *          the right driver.
+ */
+utils.prepare_test_execution_no_api_key = function (directory, driver, callback) {
+  utils.delete_directory(directory, deleted_dir);
+
+  function deleted_dir (err) {
+    if (err) return callback(err);
+    fs.mkdir(directory, created_dir);
+  }
+
+  function created_dir (err) {
+    if (err) return callback(err);
+    fs.readFile(path.resolve(__dirname, '..', '..', 'prey.conf.default'), 'utf8', read_file);
+  }
+
+  function read_file (err, data) {
+    if (err) return callback(err);
+    // We want to check if this line is correct
+    assert(data.match(new RegExp('driver = ' + driver)),
+            'Should point the right driver: ' + driver);
+    var config_path = path.resolve(directory, 'prey.conf');
+    fs.writeFile(config_path, data, wrote_file);
+  }
+
+  function wrote_file (err) {
+    if (err) return callback(err);
+    // TODO: Really, we will need to decouple this baby.
+    //       (I'm being insistent in the particular subject)
+    var my_stdout     = [];
+
+    var logger        = {};
+    logger.write      = function (msg) { my_stdout.push('-- STDOUT: ' + msg);}
+    logger.info       = logger.write;
+    logger.warn       = logger.write;
+    logger.notice     = logger.write;
+    var logger_fact   = {}
+    logger_fact.init  = function () { return logger;}
+
+    var program       = require('commander');
+    program.path      = directory;
+
+    var common_prime  =
+      sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'common'), {
+      requires : {
+        'commander'               : program
+      }
+    });
+    var common        =
+      sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent','common'), {
+        requires : {
+          './../common'           : common_prime,
+          './logger'              : logger_fact
+        }
+    });
+    var dispatcher    =
+      sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'dispatcher'), {
+        requires : {
+          './common'              : common
+        }
+    });
+    var hooks         =
+      sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'hooks'), {
+        requires : {
+          './common'              : common
+        }
+    });
+    var request       =
+      sandbox.require(
+        path.resolve(
+          __dirname, '..', '..', 'lib', 'agent', 'drivers', 'control-panel', 'request'), {
+          requires : {
+            './../../common'      : common
+          }
+    });
+    var control_panel =
+      sandbox.require(
+        path.resolve(
+          __dirname, '..', '..', 'lib', 'agent', 'drivers', 'control-panel'), {
+          requires : {
+            './../../common'      : common,
+            './../../dispatcher'  : dispatcher,
+            './../../hooks'       : hooks,
+            './request'           : request
+          }
+        });
+
+    control_panel.load({}, loaded_panel);
+
+    function loaded_panel (err) {
+      if (err) {
+        if (err.message.match('No API key found. Please set up your account.')) {
+          my_stdout.push('Error: ' + err.message);
+          return callback(null, my_stdout);
+        } else {
+          return callback(err);
+        }
+      }
+      return callback(null, my_stdout);
+    }
+  }
 }

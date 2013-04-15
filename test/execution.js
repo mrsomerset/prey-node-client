@@ -55,13 +55,20 @@ describe('Execution of [./bin/prey]', function () {
   });
 
   it('Should exit if there is not an API key in the config file', function (done) {
-    test_utils.prepare_test_execution_no_api_key(prepared_env);
+    test_utils.prepare_test_execution_no_api_key(test_dir, 'control-panel', prepared_env_executed);
 
-    function prepared_env (err, response) {
-      // TODO: The actual tests
-      // PLACEHOLDER
+    function prepared_env_executed (err, response) {
+      if (err) throw err;
+      var expected_output = [];
+      if (os_name.match(/^win/)) {
+        // TODO
+      } else {
+        expected_output.push('-- STDOUT: Device key not present.');
+        expected_output.push('Error: No API key found. Please set up your account.');
+      }
+      response[0].should.equal(expected_output[0]);
+      response[1].should.equal(expected_output[1]);
       done();
-      // PLACEHOLDER-END
     }
   });
 
