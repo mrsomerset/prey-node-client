@@ -616,7 +616,7 @@ utils.prepare_test_execution_no_api_key = function (directory, driver, callback)
 /**
  * @param   {Callback}  callback
  *
- * @summary Creates a temporary test environment to test
+ * @summary Creates a temporary test environment to know
  *          what happens when there is no internet connection.
  *          Aditionally, it will check if the default file has
  *          the right driver.
@@ -631,25 +631,41 @@ utils.prepare_test_no_internet_connection = function (callback) {
   my_process.env    = process.env;
   my_process.on     = process.on;
   my_process.exit   = function (code) { my_stdout.push('-- EXIT with code ' + code);}
+
   var logger        = {};
   logger.write      = function (msg) { my_stdout.push('-- STDOUT: ' + msg);}
   logger.info       = logger.write;
+  logger.debug      = logger.write;
+  logger.error      = logger.write;
+  logger.notice     = logger.write;
   var logger_fact   = {}
   logger_fact.init  = function () { return logger;}
+
+  var my_conn       = {};
+  my_conn.check     = function (opts, cb) { cb(new Error('TEST: No connection condition'));}
+
   var common        = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent','common'), {
     requires : {
       './logger'    : logger_fact
     }
   });
-  var agent          = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'index'), {
+  var hooks         = {};
+  hooks.trigger     = function () {} // This is `sort` a `> dev/null`
+  var agent         = sandbox.require(path.resolve(__dirname, '..', '..', 'lib', 'agent', 'index'), {
     requires : {
-      './common' : common
+      './common'    : common,
+      './connection': my_conn,
+      './hooks'     : hooks
     }
   });
 
-  // Delete this hack
-  delete process.flag_test_no_internet_connection;
+  // Call the method
+  agent.check_connection(1, checked);
 
-  // END, return the stdout (let's keep the 1st param in a callback an error)
-  callback(null, my_stdout);
+  function checked (err) {
+    // Delete this hack
+    delete process.flag_test_no_internet_connection;
+    // END, return the stdout (let's keep the 1st param in a callback an error)
+    callback(null, my_stdout);
+  }
 }

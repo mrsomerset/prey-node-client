@@ -72,6 +72,16 @@ describe('Execution of [./bin/prey]', function () {
     test_utils.prepare_test_no_internet_connection(prepared_env_executed);
 
     function prepared_env_executed (err, response) {
+      var flag_found_no_connection_message      = false;
+      var flag_found_after_one_attempt_message  = false;
+      response.forEach(function (line) {
+        if (line.match(/-- STDOUT: Error: TEST: No connection condition\n/))
+          flag_found_no_connection_message = true;
+        if (line.match(/-- STDOUT: \[agent\] No connection found after 1 attempts./))
+          flag_found_after_one_attempt_message = true;
+      });
+      assert(flag_found_no_connection_message, '`No connection` message not found');
+      assert(flag_found_after_one_attempt_message, '`After 1 attempt` message not found');
       done();
     }
   });
