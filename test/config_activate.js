@@ -16,7 +16,7 @@ var assert      = require('assert'),
     path        = require('path'),
     test_utils  = require('./lib/test_utils');
 
-describe.skip('[./bin/prey] config activate', function () {
+describe('[./bin/prey] config activate', function () {
   // Suite variables
   var my_std_out_messages = new Array();
   var my_log = function (msg) {
