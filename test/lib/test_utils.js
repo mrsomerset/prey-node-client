@@ -85,17 +85,13 @@ utils.delete_user = function (username, callback) {
     if (data) {
       // user exists
       command = os_utils.delete_user_command(username);
-      return utils.execute_command(command, executed_deletion);
+      return utils.execute_command(command, callback);
     } else {
       // user doesn't exist
       return callback();
     }
   }
 
-  function executed_deletion (err) {
-    if (err) return callback(err);
-    return callback();
-  }
 }
 
 /**
