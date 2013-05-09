@@ -90,6 +90,7 @@ describe('bin/prey', function(){
       it('uses system node binary', function(){
         run_bin_prey(' -N', function(err, out){
           out.should.include(node_versions.system);
+          done();
         })
       })
 
