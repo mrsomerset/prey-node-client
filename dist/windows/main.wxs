@@ -1,19 +1,22 @@
 <?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-   <Product Id="*" UpgradeCode="12345678-1234-1234-1234-111111111111" 
-            Name="Example Product Name" Version="0.0.1" Manufacturer="Example Company Name" Language="1033">
+   <Product Id="*" UpgradeCode="e43d274f-c34f-42d2-9480-591a9415e86d"
+            Name="Prey Anti-theft"
+            Version="0.10.0"
+            Manufacturer="Prey, Inc."
+            Language="1033">
       <Package InstallerVersion="200" Compressed="yes" Comments="Windows Installer Package"/>
       <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
  
       <Directory Id="TARGETDIR" Name="SourceDir">
          <Directory Id="ProgramFilesFolder">
-            <Directory Id="INSTALLDIR" Name="Example">
+            <Directory Id="INSTALLDIR" Name="Prey">
             </Directory>
          </Directory>
       </Directory>
  
       <Feature Id="DefaultFeature" Level="1">
-         <ComponentGroupRef Id="herman_test"/>
+         <ComponentGroupRef Id="prey_installable_test"/>
       </Feature>
    </Product>
 </Wix>

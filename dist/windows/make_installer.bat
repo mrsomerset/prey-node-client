@@ -16,12 +16,12 @@ del main.wixobj
 
 ".\bin\paraffin" prey-installable-test.wxs ^
 -dir tmp_package ^
--groupname herman-test
+-groupname prey-installable-test
 
 ".\bin\candle" ^
 prey-installable-test.wxs main.wxs
 
 ".\bin\light" ^
--out prey-test.msi prey-installable-test.wixobj main.wixobj
+-out prey-msi-test.msi prey-installable-test.wixobj main.wixobj
 
 @pause
