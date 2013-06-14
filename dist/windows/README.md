@@ -12,3 +12,12 @@ Currently you need:
 * Paraffine
 
 
+# Files involved
+
+## make_installer.cmd
+
+(TODO)
+
+## main.wxs
+
+(TODO)

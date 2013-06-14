@@ -16,7 +16,24 @@
       </Directory>
  
       <Feature Id="DefaultFeature" Level="1">
-         <ComponentGroupRef Id="prey_installable_test"/>
+         <ComponentGroupRef Id="prey_msi"/>
       </Feature>
+
+       <!-- Step 2: Add UI to your installer / Step 4: Trigger the custom action -->
+       <UI>
+           <UIRef Id="WixUI_Minimal" />
+           <Publish Dialog="ExitDialog"
+               Control="Finish"
+               Event="DoAction"
+               Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+       </UI>
+       <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch My Application Name" />
+
+       <!-- Step 3: Include the custom action -->
+       <Property Id="WixShellExecTarget" Value="C:\Prey\versions\0.10.0\bin\prey config activate" />
+       <CustomAction Id="LaunchApplication"
+           BinaryKey="WixCA"
+           DllEntry="WixShellExec"
+           Impersonate="yes" />
    </Product>
 </Wix>
