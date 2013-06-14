@@ -25,12 +25,13 @@
            <Publish Dialog="ExitDialog"
                Control="Finish"
                Event="DoAction"
-               Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+               Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1</Publish>
        </UI>
-       <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch My Application Name" />
+       <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Activation" />
 
        <!-- Step 3: Include the custom action -->
-       <Property Id="WixShellExecTarget" Value="C:\Prey\versions\0.10.0\bin\prey config activate" />
+       <Property Id="WixShellExecTarget"
+         Value="[#bin\prey.cmd] config activate" />
        <CustomAction Id="LaunchApplication"
            BinaryKey="WixCA"
            DllEntry="WixShellExec"
