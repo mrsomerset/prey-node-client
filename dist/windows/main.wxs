@@ -50,11 +50,30 @@
                      Impersonate="no"
                      Return="asyncWait" />
 
+      <!-- bin\prey.cmd hooks post_install -->
+      <CustomAction  Id="CommandHooksPostInstall"
+                     Directory="INSTALLDIR"
+                     ExeCommand="&quot;[INSTALLDIR]bin\prey.cmd&quot; hooks post_install"
+                     Execute="deferred"
+                     Impersonate="no"
+                     Return="asyncWait" />
+
+      <!-- bin\prey.cmd config gui -->
+      <CustomAction  Id="CommandConfigGui"
+                     Directory="INSTALLDIR"
+                     ExeCommand="&quot;[INSTALLDIR]bin\prey.cmd&quot; config gui"
+                     Execute="deferred"
+                     Impersonate="no"
+                     Return="asyncWait" />
+
       <InstallExecuteSequence>
          <Custom  Action='CommandConfigActivate'
                   After='PublishProduct'>NOT Installed</Custom>
+         <!-- Custom  Action='CommandHooksPostInstall'
+                  After='PublishProduct'>NOT Installed</Custom -->
+         <Custom  Action='CommandConfigGui'
+                  After='PublishProduct'>NOT Installed</Custom>
       </InstallExecuteSequence>
-
 
    </Product>
 </Wix>
