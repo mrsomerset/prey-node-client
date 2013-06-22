@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-   <Product Id="*" UpgradeCode="e43d274f-c34f-42d2-9480-591a9415e86d"
+   <Product Id="*" 
+            UpgradeCode="e43d274f-c34f-42d2-9480-591a9415e86d"
             Name="Prey Anti-theft"
             Version="0.10.0"
             Manufacturer="Prey, Inc."
             Language="1033">
-      <Package InstallerVersion="200" Compressed="yes" Comments="Windows Installer Package"/>
+      <Package  InstallerVersion="200"
+                Compressed="yes"
+                Comments="Windows Installer Package"/>
       <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
  
       <Directory Id="TARGETDIR" Name="SourceDir">
@@ -19,22 +22,9 @@
          <ComponentGroupRef Id="prey_msi"/>
       </Feature>
 
-       <!-- Step 2: Add UI to your installer / Step 4: Trigger the custom action -->
-       <UI>
-           <UIRef Id="WixUI_Minimal" />
-           <Publish Dialog="ExitDialog"
-               Control="Finish"
-               Event="DoAction"
-               Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1</Publish>
-       </UI>
-       <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Activation" />
 
-       <!-- Step 3: Include the custom action -->
-       <Property Id="WixShellExecTarget"
-         Value="[#bin\prey.cmd] config activate" />
-       <CustomAction Id="LaunchApplication"
-           BinaryKey="WixCA"
-           DllEntry="WixShellExec"
-           Impersonate="yes" />
+
+
+
    </Product>
 </Wix>
