@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
    <Product Id="*" 
             UpgradeCode="e43d274f-c34f-42d2-9480-591a9415e86d"
             Name="Prey Anti-theft"
-            Version="0.10.0"
+            Version="$(var.ProductVersion)"
             Manufacturer="Prey, Inc."
             Language="1033">
       <Package  InstallerVersion="200"
@@ -13,7 +14,11 @@
  
       <Directory Id="TARGETDIR" Name="SourceDir">
          <Directory Id="ProgramFilesFolder">
-            <Directory Id="INSTALLDIR" Name="Prey">
+            <Directory Id="Prey" Name="Prey">
+               <Directory Id="Versions" Name="Versions">
+                  <Directory Id="INSTALLDIR" Name="$(var.ProductVersion)">
+                  </Directory>
+               </Directory>
             </Directory>
          </Directory>
       </Directory>
