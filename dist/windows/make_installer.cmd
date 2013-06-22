@@ -17,4 +17,5 @@ del main.wixobj
 prey-msi.wxs main.wxs
 
 ".\bin\light" ^
+-ext WixNetFxExtension ^
 -out prey-msi.msi prey-msi.wixobj main.wixobj

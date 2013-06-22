@@ -12,6 +12,12 @@
                 Comments="Windows Installer Package"/>
       <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
  
+      <!-- Dot Net condition -->
+      <PropertyRef Id="NETFRAMEWORK20_SP_LEVEL"/>
+      <Condition Message='This setup requires the .NET Framework 2.0 with Service Pack 1 installed.'>
+         <![CDATA[Installed OR (NETFRAMEWORK20_SP_LEVEL AND NETFRAMEWORK20_SP_LEVEL = "#1")]]>
+      </Condition>
+
       <Directory Id="TARGETDIR" Name="SourceDir">
 
          <Directory Id="ProgramFilesFolder">
