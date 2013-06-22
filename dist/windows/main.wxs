@@ -13,6 +13,7 @@
       <Media Id="1" Cabinet="product.cab" EmbedCab="yes"/>
  
       <Directory Id="TARGETDIR" Name="SourceDir">
+
          <Directory Id="ProgramFilesFolder">
             <Directory Id="Prey" Name="Prey">
                <Directory Id="Versions" Name="Versions">
@@ -21,10 +22,23 @@
                </Directory>
             </Directory>
          </Directory>
+
+         <Directory Id="WindowsFolder" Name="WindowsFolder">
+            <Directory Id="WinPrey" Name="Prey">
+               <Component  Id="WinPreyDirCreation"
+                           Guid="cd6e15d0-daf6-11e2-a28f-0800200c9a66">
+                  <CreateFolder />
+                  <RemoveFile Id="WinPreyConf" Name="prey.conf" On="uninstall" />
+                  <RemoveFolder Id='WinPrey' On='uninstall' />
+               </Component>
+            </Directory>
+         </Directory>
+
       </Directory>
  
       <Feature Id="Complete" Level="1">
          <ComponentGroupRef Id="prey_msi"/>
+         <ComponentRef Id="WinPreyDirCreation" />
       </Feature>
 
       <!-- The commands to be executed after installation -->
