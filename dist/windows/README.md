@@ -63,26 +63,14 @@ $ make_installer.cmd 0.10.0
 
 Is important to put the version number!
 
-
-
-
-
-
-
-
-
-
+---------------------------------------------------
 
 
 # Problemas a resolver
 
-
-- Tenemos que resolver el problema de llamar a:
-	 - config activate
-	 - post install
-	 - config gui
-- despues arreglar la gui del instalador
 - despues instalar .NET si no lo tiene
+- despues arreglar la gui del instalador
+
 - agregar un icono a la instalación de prey
 - Aprender a instalar con el certificado
 
@@ -91,4 +79,3 @@ Is important to put the version number!
 - ¿Qué pasa si prey ya está instalado.....?
 	- ver la versión, si es la misma no hacer nada
 	- ofrecer actualizar o salir si son distintas
-
