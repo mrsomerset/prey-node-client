@@ -23,12 +23,23 @@
          </Directory>
       </Directory>
  
-      <Feature Id="DefaultFeature" Level="1">
+      <Feature Id="Complete" Level="1">
          <ComponentGroupRef Id="prey_msi"/>
       </Feature>
 
+      <!-- The commands to be executed after installation -->
+      <!-- bin\prey.cmd config activate -->
+      <CustomAction  Id="CommandConfigActivate"
+                     Directory="INSTALLDIR"
+                     ExeCommand="&quot;[INSTALLDIR]bin\prey.cmd&quot; config activate"
+                     Execute="deferred"
+                     Impersonate="no"
+                     Return="asyncWait" />
 
-
+      <InstallExecuteSequence>
+         <Custom  Action='CommandConfigActivate'
+                  After='PublishProduct'>NOT Installed</Custom>
+      </InstallExecuteSequence>
 
 
    </Product>
